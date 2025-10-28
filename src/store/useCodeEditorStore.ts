@@ -1,30 +1,53 @@
-import { CodeEditorState } from "./../types/index";
-import { LANGUAGE_CONFIG } from "@/app/(root)/_constants";
 import { create } from "zustand";
-import { Monaco } from "@monaco-editor/react";
+import * as monaco from "monaco-editor";
+import { LANGUAGE_CONFIG } from "@/app/(root)/_constants";
 
+// ✅ Define the TypeScript interface for editor state
+export interface CodeEditorState {
+  language: string;
+  theme: string;
+  fontSize: number;
+  output: string;
+  isRunning: boolean;
+  error: string | null;
+  editor: monaco.editor.IStandaloneCodeEditor | null;
+  executionResult: {
+    code: string;
+    output: string;
+    error: string | null;
+  } | null;
+
+  // Methods
+  getCode: () => string;
+  setEditor: (editor: monaco.editor.IStandaloneCodeEditor) => void;
+  setTheme: (theme: string) => void;
+  setFontSize: (fontSize: number) => void;
+  setLanguage: (language: string) => void;
+  runCode: () => Promise<void>;
+}
+
+// ✅ Helper function to safely get defaults (handles SSR)
 const getInitialState = () => {
-  // if we're on the server, return default values
   if (typeof window === "undefined") {
     return {
       language: "javascript",
-      fontSize: 16,
       theme: "vs-dark",
+      fontSize: 16,
     };
   }
 
-  // if we're on the client, return values from local storage bc localStorage is a browser API.
   const savedLanguage = localStorage.getItem("editor-language") || "javascript";
   const savedTheme = localStorage.getItem("editor-theme") || "vs-dark";
-  const savedFontSize = localStorage.getItem("editor-font-size") || 16;
+  const savedFontSize = parseInt(localStorage.getItem("editor-font-size") || "16");
 
   return {
     language: savedLanguage,
     theme: savedTheme,
-    fontSize: Number(savedFontSize),
+    fontSize: savedFontSize,
   };
 };
 
+// ✅ Zustand Store
 export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
   const initialState = getInitialState();
 
@@ -36,41 +59,40 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
     editor: null,
     executionResult: null,
 
+    // ✅ Get code from editor safely
     getCode: () => get().editor?.getValue() || "",
 
-    setEditor: (editor: Monaco) => {
+    // ✅ Save editor instance when mounted
+    setEditor: (editor: monaco.editor.IStandaloneCodeEditor) => {
       const savedCode = localStorage.getItem(`editor-code-${get().language}`);
       if (savedCode) editor.setValue(savedCode);
-
       set({ editor });
     },
 
+    // ✅ Update theme
     setTheme: (theme: string) => {
       localStorage.setItem("editor-theme", theme);
       set({ theme });
     },
 
+    // ✅ Update font size
     setFontSize: (fontSize: number) => {
-      localStorage.setItem("editor-font-size", fontSize.toString());
-      set({ fontSize });
+      const clamped = Math.min(Math.max(fontSize, 12), 24);
+      localStorage.setItem("editor-font-size", clamped.toString());
+      set({ fontSize: clamped });
     },
 
+    // ✅ Change language & preserve old code
     setLanguage: (language: string) => {
-      // Save current language code before switching
       const currentCode = get().editor?.getValue();
       if (currentCode) {
         localStorage.setItem(`editor-code-${get().language}`, currentCode);
       }
-
       localStorage.setItem("editor-language", language);
-
-      set({
-        language,
-        output: "",
-        error: null,
-      });
+      set({ language, output: "", error: null });
     },
 
+    // ✅ Execute code using Piston API
     runCode: async () => {
       const { language, getCode } = get();
       const code = getCode();
@@ -86,9 +108,7 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
         const runtime = LANGUAGE_CONFIG[language].pistonRuntime;
         const response = await fetch("https://emkc.org/api/v2/piston/execute", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             language: runtime.language,
             version: runtime.version,
@@ -97,25 +117,22 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
         });
 
         const data = await response.json();
+        console.log("Execution result from Piston:", data);
 
-        console.log("data back from piston:", data);
-
-        // handle API-level erros
+        // 🛑 Handle API or runtime errors
         if (data.message) {
-          set({ error: data.message, executionResult: { code, output: "", error: data.message } });
+          set({
+            error: data.message,
+            executionResult: { code, output: "", error: data.message },
+          });
           return;
         }
 
-        // handle compilation errors
         if (data.compile && data.compile.code !== 0) {
           const error = data.compile.stderr || data.compile.output;
           set({
             error,
-            executionResult: {
-              code,
-              output: "",
-              error,
-            },
+            executionResult: { code, output: "", error },
           });
           return;
         }
@@ -124,29 +141,20 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
           const error = data.run.stderr || data.run.output;
           set({
             error,
-            executionResult: {
-              code,
-              output: "",
-              error,
-            },
+            executionResult: { code, output: "", error },
           });
           return;
         }
 
-        // if we get here, execution was successful
-        const output = data.run.output;
-
+        // ✅ Successful execution
+        const output = data.run.output.trim();
         set({
-          output: output.trim(),
+          output,
           error: null,
-          executionResult: {
-            code,
-            output: output.trim(),
-            error: null,
-          },
+          executionResult: { code, output, error: null },
         });
-      } catch (error) {
-        console.log("Error running code:", error);
+      } catch (err) {
+        console.error("Error running code:", err);
         set({
           error: "Error running code",
           executionResult: { code, output: "", error: "Error running code" },
@@ -158,4 +166,5 @@ export const useCodeEditorStore = create<CodeEditorState>((set, get) => {
   };
 });
 
+// ✅ Helper to get last execution result without re-rendering
 export const getExecutionResult = () => useCodeEditorStore.getState().executionResult;
