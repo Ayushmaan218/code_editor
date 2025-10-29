@@ -5,18 +5,22 @@ import { defineMonacoThemes, LANGUAGE_CONFIG } from "../_constants";
 import { Editor } from "@monaco-editor/react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { RotateCcwIcon, ShareIcon, TypeIcon } from "lucide-react";
+import { RotateCcwIcon, ShareIcon, TypeIcon, ShieldCheckIcon, Zap, } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 import { EditorPanelSkeleton } from "./EditorPanelSkeleton";
 import useMounted from "@/hooks/useMounted";
 import ShareSnippetDialog from "./ShareSnippetDialog";
+import { api } from "../../../../convex/_generated/api";
+import Link from "next/link";
+import { useQuery } from "convex/react";
 
 function EditorPanel() {
   const clerk = useClerk();
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const { language, theme, fontSize, editor, setFontSize, setEditor } = useCodeEditorStore();
-
+  const [showProModal, setShowProModal] = useState(false);
   const mounted = useMounted();
+  const currentUser = useQuery(api.codeExecutions.getCurrentUser);
 
   useEffect(() => {
     const savedCode = localStorage.getItem(`editor-code-${language}`);
@@ -44,8 +48,17 @@ function EditorPanel() {
     setFontSize(size);
     localStorage.setItem("editor-font-size", size.toString());
   };
+  const handleShareClick = () => {
+    if (currentUser?.isPro) {
+      setIsShareDialogOpen(true); // User is Pro, open the normal share dialog
+    } else {
+      setShowProModal(true); // User is not Pro, open the "Upgrade" modal
+    }
+  };
 
   if (!mounted) return null;
+
+  const isNotPro = clerk.loaded && !!currentUser && !currentUser.isPro;
 
   return (
     <div className="relative">
@@ -92,15 +105,23 @@ function EditorPanel() {
 
             {/* Share Button */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsShareDialogOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-linear-to-r
-               from-blue-500 to-blue-600 opacity-90 hover:opacity-100 transition-opacity"
+              // Disable animations if not Pro
+              whileHover={{ scale: isNotPro ? 1 : 1.02 }}
+              whileTap={{ scale: isNotPro ? 1 : 0.98 }}
+              // Use the new click handler
+              onClick={handleShareClick}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-linear-to-r
+               from-blue-500 to-blue-600 transition-all
+               ${
+                 // Apply blur and new styles if not Pro
+                 isNotPro
+                   ? "opacity-60 blur-[2px] cursor-not-allowed"
+                   : "opacity-90 hover:opacity-100"
+               }
+              `}
             >
               <ShareIcon className="size-4 text-white" />
-              <span className="text-sm font-medium text-white ">Share
-              </span>
+              <span className="text-sm font-medium text-white ">Share</span>
             </motion.button>
           </div>
         </div>
@@ -142,8 +163,64 @@ function EditorPanel() {
           {!clerk.loaded && <EditorPanelSkeleton />}
         </div>
       </div>
-      {isShareDialogOpen && <ShareSnippetDialog onClose={() => setIsShareDialogOpen(false)} />}
+      {isShareDialogOpen && (
+        <ShareSnippetDialog onClose={() => setIsShareDialogOpen(false)} />
+      )}
+      {showProModal && <ProModal onClose={() => setShowProModal(false)} />}
     </div>
   );
 }
 export default EditorPanel;
+
+function ProModal({ onClose }: { onClose: () => void }) {
+  const CHEKOUT_URL =
+    "https://ayushmaan.lemonsqueezy.com/buy/2bede505-d703-4a67-8c0b-360b720d4bc0";
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        className="relative bg-[#1e1e2e] rounded-lg p-6 w-full max-w-md border border-white/10 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col items-center text-center">
+          <ShieldCheckIcon className="size-12 text-blue-500 mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">Upgrade to Pro</h2>
+          <p className="text-gray-400 mb-6">
+            You must be a Pro user to share code snippets. Upgrade your plan to
+            unlock this feature.
+          </p>
+          <div className="flex gap-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onClose}
+              className="px-4 py-2 bg-[#2a2a3a] hover:bg-[#3a3a4a] text-gray-300 rounded-lg transition-colors"
+            >
+              Maybe Later
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-4 py-2 bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-lg transition-opacity hover:opacity-90"
+            >
+              <Link
+      href={CHEKOUT_URL}
+      className="inline-flex items-center justify-center gap-2 px-8 py-4 text-white 
+        bg-linear-to-r from-blue-500 to-blue-600 rounded-lg 
+        hover:from-blue-600 hover:to-blue-700 transition-all"
+    >
+      <Zap className="w-5 h-5" />
+      Upgrade to Pro
+    </Link>
+            </motion.button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}

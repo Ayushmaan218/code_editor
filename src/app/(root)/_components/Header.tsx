@@ -2,7 +2,7 @@ import { currentUser } from '@clerk/nextjs/server';
 import { ConvexHttpClient } from 'convex/browser';
 import React from 'react';
 import { api } from '../../../../convex/_generated/api';
-import { Blocks, Code2, Sparkles } from 'lucide-react';
+import { Blocks, Code2, Heart, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import ThemeSelector from './ThemeSelector';
 import LanguageSelector from './LanguageSelector';
@@ -87,6 +87,17 @@ async function HeaderPanel() {
               </span>
             </Link>
           )}
+          <Link
+          href="https://ayushmaan.lemonsqueezy.com/buy/58f8d128-794c-42dd-b93c-667642f42352" 
+          className="flex items-center gap-2 px-4 py-1.5 rounded-lg border border-pink-500/20 hover:border-pink-500/40 bg-linear-to-r from-pink-500/10 
+            to-purple-500/10 hover:from-pink-500/20 hover:to-purple-500/20 
+            transition-all duration-300"
+        >
+          <Heart className="w-4 h-4 text-pink-400 hover:text-pink-300" />
+          <span className="text-sm font-medium text-pink-400/90 hover:text-pink-300">
+            Donate
+          </span>
+        </Link>
           <SignedIn>
             <RunButton />
           </SignedIn>

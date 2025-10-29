@@ -110,3 +110,22 @@ export const getUserStats = query({
     };
   },
 });
+
+export const getCurrentUser = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null; // Not authenticated
+    }
+
+    // Fetch the user document from the 'users' table
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id")
+      .filter((q) => q.eq(q.field("userId"), identity.subject))
+      .first();
+
+    return user;
+  },
+});
