@@ -38,7 +38,7 @@ async function HeaderPanel() {
             </div>
             <div className="flex flex-col">
               <span className="block text-lg font-semibold bg-linear-to-r from-blue-400 via-blue-300 to-purple-400 text-transparent bg-clip-text">
-                Codemon
+                Codexly
               </span>
               <span className="block text-xs text-blue-400/60 font-medium">
                 Interactive Code Editor
