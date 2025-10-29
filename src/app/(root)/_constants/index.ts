@@ -424,7 +424,12 @@ export const THEME_DEFINITONS = {
 export const defineMonacoThemes = (monaco: Monaco) => {
   Object.entries(THEME_DEFINITONS).forEach(([themeName, themeData]) => {
     monaco.editor.defineTheme(themeName, {
-      base: themeData.base,
+      base: themeData.base === "vs" ||
+  themeData.base === "vs-dark" ||
+  themeData.base === "hc-black" ||
+  themeData.base === "hc-light"
+    ? themeData.base
+    : "vs-dark",
       inherit: themeData.inherit,
       rules: themeData.rules.map((rule) => ({
         ...rule,
