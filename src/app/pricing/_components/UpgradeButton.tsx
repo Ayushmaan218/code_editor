@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function UpgradeButton() {
   const CHEKOUT_URL =
-    "ToBePut";
+    "https://ayushmaan.lemonsqueezy.com/buy/2bede505-d703-4a67-8c0b-360b720d4bc0";
 
   return (
     <Link

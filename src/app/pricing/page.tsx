@@ -3,10 +3,8 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../convex/_generated/api";
 import ProPlanView from "./_components/ProPlanView";
 import NavigationHeader from "@/components/NavigationHeader";
-import { ENTERPRISE_FEATURES, FEATURES } from "./_constants";
+import { ENTERPRISE_FEATURES } from "./_constants";
 import { Star } from "lucide-react";
-import FeatureCategory from "./_components/FeatureCategory";
-import FeatureItem from "./_components/FeatureItem";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import UpgradeButton from "./_components/UpgradeButton";
 import LoginButton from "@/components/LoginButton";
@@ -99,27 +97,6 @@ async function PricingPage() {
                     <span className="text-xl text-gray-400">one-time</span>
                   </div>
                   <p className="text-gray-400 text-lg">Unlock the full potential of CodeCraft</p>
-                </div>
-
-                {/* Features grid */}
-                <div className="grid md:grid-cols-3 gap-12 mb-12">
-                  <FeatureCategory label="Development">
-                    {FEATURES.development.map((feature, idx) => (
-                      <FeatureItem key={idx}>{feature}</FeatureItem>
-                    ))}
-                  </FeatureCategory>
-
-                  <FeatureCategory label="Collaboration">
-                    {FEATURES.collaboration.map((feature, idx) => (
-                      <FeatureItem key={idx}>{feature}</FeatureItem>
-                    ))}
-                  </FeatureCategory>
-
-                  <FeatureCategory label="Deployment">
-                    {FEATURES.deployment.map((feature, idx) => (
-                      <FeatureItem key={idx}>{feature}</FeatureItem>
-                    ))}
-                  </FeatureCategory>
                 </div>
 
                 {/* CTA */}
