@@ -17,7 +17,10 @@ function LanguageSelector({ hasAccess }: { hasAccess: boolean }) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -27,11 +30,19 @@ function LanguageSelector({ hasAccess }: { hasAccess: boolean }) {
   }, []);
 
   const handleLanguageSelect = (langId: string) => {
-    if (!hasAccess && langId !== "javascript") return;
+  if (
+    !hasAccess &&
+    langId !== "javascript" &&
+    langId !== "java" &&
+    langId !== "python" &&
+    langId !== "cpp"
+  )
+    return;
 
-    setLanguage(langId);
-    setIsOpen(false);
-  };
+  setLanguage(langId);
+  setIsOpen(false);
+};
+
 
   if (!mounted) return null;
 
@@ -42,9 +53,16 @@ function LanguageSelector({ hasAccess }: { hasAccess: boolean }) {
         whileTap={{ scale: 0.98 }}
         onClick={() => setIsOpen(!isOpen)}
         className={`group relative flex items-center gap-3 px-4 py-2.5 bg-[#1e1e2e]/80 
-      rounded-lg transition-all 
-       duration-200 border border-gray-800/50 hover:border-gray-700
-       ${!hasAccess && language !== "javascript" ? "opacity-50 cursor-not-allowed" : ""}`}
+    rounded-lg transition-all duration-200 border border-gray-800/50 hover:border-gray-700
+    ${
+      !hasAccess &&
+      language !== "javascript" &&
+      language !== "java" &&
+      language !== "python" &&
+      language !== "cpp"
+        ? "opacity-50 cursor-not-allowed"
+        : ""
+    }`}
       >
         {/* Decoration */}
         <div
@@ -84,12 +102,14 @@ function LanguageSelector({ hasAccess }: { hasAccess: boolean }) {
            rounded-xl border border-[#313244] shadow-2xl py-2 z-50"
           >
             <div className="px-3 pb-2 mb-2 border-b border-gray-800/50">
-              <p className="text-xs font-medium text-gray-400">Select Language</p>
+              <p className="text-xs font-medium text-gray-400">
+                Select Language
+              </p>
             </div>
 
             <div className="max-h-[280px] overflow-y-auto overflow-x-hidden">
               {Object.values(LANGUAGE_CONFIG).map((lang, index) => {
-                const isLocked = !hasAccess && lang.id !== "javascript";
+                const isLocked = !hasAccess && lang.id !== "javascript" && lang.id !== "java" && lang.id !== "python" && lang.id !== "cpp";
 
                 return (
                   <motion.div
