@@ -105,20 +105,10 @@ function EditorPanel() {
 
             {/* Share Button */}
             <motion.button
-              // Disable animations if not Pro
-              whileHover={{ scale: isNotPro ? 1 : 1.02 }}
-              whileTap={{ scale: isNotPro ? 1 : 0.98 }}
               // Use the new click handler
               onClick={handleShareClick}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-linear-to-r
-               from-blue-500 to-blue-600 transition-all
-               ${
-                 // Apply blur and new styles if not Pro
-                 isNotPro
-                   ? "opacity-60 blur-[2px] cursor-not-allowed"
-                   : "opacity-90 hover:opacity-100"
-               }
-              `}
+               from-blue-500 to-blue-600 transition-all hover:from-blue-600 hover:to-blue-700`}
             >
               <ShareIcon className="size-4 text-white" />
               <span className="text-sm font-medium text-white ">Share</span>
