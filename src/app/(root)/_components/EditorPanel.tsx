@@ -58,7 +58,6 @@ function EditorPanel() {
 
   if (!mounted) return null;
 
-  const isNotPro = clerk.loaded && !!currentUser && !currentUser.isPro;
 
   return (
     <div className="relative">
