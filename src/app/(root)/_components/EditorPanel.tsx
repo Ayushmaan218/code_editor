@@ -163,7 +163,7 @@ export default EditorPanel;
 
 function ProModal({ onClose }: { onClose: () => void }) {
   const CHEKOUT_URL =
-    "https://ayushmaan.lemonsqueezy.com/buy/2bede505-d703-4a67-8c0b-360b720d4bc0";
+    "/pricing";
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
