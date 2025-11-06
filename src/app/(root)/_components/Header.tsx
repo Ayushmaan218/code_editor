@@ -6,7 +6,6 @@ import { Blocks, Code2, Heart, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import ThemeSelector from './ThemeSelector';
 import LanguageSelector from './LanguageSelector';
-import { SignedIn, SignInButton } from "@clerk/nextjs";
 import RunButton from "./RunButton";
 import HeaderProfileBtn from "./HeaderProfileBtn";
 
@@ -99,9 +98,6 @@ async function HeaderPanel() {
           </span>
         </Link>
             <RunButton />
-          <SignedIn>
-            <SignInButton />
-          </SignedIn>
           <div className="pl-3 border-l border-gray-800">
             <HeaderProfileBtn />
           </div>
