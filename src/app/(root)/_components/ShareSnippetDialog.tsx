@@ -31,11 +31,11 @@ function ShareSnippetDialog({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#1e1e2e] rounded-lg p-6 w-full max-w-md">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-[#1e1e2e] rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-white">Share Snippet</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-300">
+          <h2 className="text-lg sm:text-xl font-semibold text-white">Share Snippet</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-300 p-1">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -50,17 +50,17 @@ function ShareSnippetDialog({ onClose }: { onClose: () => void }) {
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 bg-[#181825] border border-[#313244] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-[#181825] border border-[#313244] rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter snippet title"
               required
             />
           </div>
 
-          <div className="flex justify-end gap-3">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-400 hover:text-gray-300"
+              className="px-4 py-2 text-gray-400 hover:text-gray-300 text-sm sm:text-base w-full sm:w-auto"
             >
               Cancel
             </button>
@@ -68,7 +68,7 @@ function ShareSnippetDialog({ onClose }: { onClose: () => void }) {
               type="submit"
               disabled={isSharing}
               className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 
-              disabled:opacity-50"
+              disabled:opacity-50 text-sm sm:text-base w-full sm:w-auto"
             >
               {isSharing ? "Sharing..." : "Share"}
             </button>
